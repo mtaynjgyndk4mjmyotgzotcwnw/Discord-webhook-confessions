@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confession webhook</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Confession Box</h1>
+    </header>
+    <main>
+        <section id="confession-list"></section>
+        <section id="confession-form">
+            <h2>Share Your Confession</h2>
+            <form id="new-confession-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" required placeholder="Your username...">
+                <label for="content">Confession:</label>
+                <textarea id="content" required placeholder="Your confession..."></textarea>
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+    </main>
+    
+    <script>
+        // List of prohibited words
+        const badWords = ["badword1", "badword2", "badword3"];
+        
+        // Event listener for confession form submission
+        document.getElementById("new-confession-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Get input values
+            const username = document.getElementById("username").value;
+            const confession = document.getElementById("content").value;
+
+            // Check if the confession contains prohibited words
+            if (containsBadWords(confession)) {
+                alert("Confession contains prohibited words. Please modify your confession.");
+                return;
+            }
+
+            // Create a message object
+            const message = {
+                content: `>>> **Username**: ${username}\n**Confession**: ${confession}`,
+            };
+
+            // Replace 'your-discord-webhook-url' with your actual Discord webhook URL
+            const webhookUrl = 'Your webhook';
+
+            // Send the message to the Discord webhook
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(message),
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Confession submitted successfully to Discord!");
+                    clearForm();
+                } else {
+                    alert("Failed to submit confession. Please try again later.");
+                }
+            });
+        });
+
+        // Function to check if a confession contains prohibited words
+        function containsBadWords(content) {
+            const lowercaseContent = content.toLowerCase();
+            for (const word of badWords) {
+                if (lowercaseContent.includes(word)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Function to clear the form after submission
+        function clearForm() {
+            document.getElementById("username").value = "";
+            document.getElementById("content").value = "";
+        }
+    </script>
+</body>
+</html>
